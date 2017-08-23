@@ -1,6 +1,7 @@
 import os
 
 import haproxy.config
+from haproxy.config import HEALTH_CHECK
 from haproxy.parser.base_parser import EnvParser, Specs
 
 
@@ -64,6 +65,18 @@ class LegacySpecs(Specs):
                     route = haproxy.config.BACKEND_MATCH.match(value).groupdict()
 
                     route.update({"container_name": container_name})
+
+                    route_health_check = details.get(service_alias, {}).get("health_check")
+                    if not route_health_check:
+                        route_health_check = HEALTH_CHECK
+                    extra_route_settings = details.get(service_alias, {}).get("extra_route_settings")
+                    if not extra_route_settings:
+                        extra_route_settings = ""
+                    if details.get(service_alias, {}).get("failover"):
+                        extra_route_settings = " ".join([extra_route_settings, "backup"]).strip()
+                    route_settings = " ".join([route_health_check, extra_route_settings]).strip()
+                    route.update({"route_settings": route_settings})
+
                     exclude_ports = details.get(service_alias, {}).get("exclude_ports")
                     if not exclude_ports or (exclude_ports and route["port"] not in exclude_ports):
                         if service_alias in routes:
