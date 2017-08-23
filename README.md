@@ -248,13 +248,13 @@ Settings here can overwrite the settings in HAProxy, which are only applied to t
 |EXCLUDE_PORTS|if set, the application by the application services to the backend routes. You can exclude the ports that you don't want to be routed, like database port|
 |EXCLUDE_BASIC_AUTH|if set(any value) and `HTTP_BASIC_AUTH` global setting is set, no basic auth will be applied to this service.|
 |EXTRA_ROUTE_SETTINGS|a string which is append to the each backend route after the health check,possible value: "send-proxy"|
+|FAILOVER|if set, this service will run as a HAProxy `backup` for other configured service(s) in the same backend|
 |EXTRA_SETTINGS|comma-separated string of extra settings, and each part will be appended to either related backend section or listen session in the configuration file. To escape comma, use `\,`. Possible value: `balance source`|
-|FAILOVER|if set(any value), it configures this service to be run as HAProxy `backup` for other configured service(s) in this backend|
 |FORCE_SSL|if set(any value) together with ssl termination enabled. HAProxy will redirect HTTP request to HTTPS request.
 |GZIP_COMPRESSION_TYPE|enable gzip compression. The value of this envvar is a list of MIME types that will be compressed. Some possible values: `text/html text/plain text/css application/javascript`. See:[HAProxy:compression](http://cbonte.github.io/haproxy-dconv/configuration-1.5.html#4-compression)|
 |HEALTH_CHECK|set health check on each backend route, possible value: "check inter 2000 rise 2 fall 3". See:[HAProxy:check](https://cbonte.github.io/haproxy-dconv/configuration-1.5.html#5.2-check)|
 |HSTS_MAX_AGE|enable HSTS. It is an integer representing the max age of HSTS in seconds, possible value: `31536000`|
-|HTTP_CHECK|enable HTTP protocol to check on the servers health, possible value: "OPTIONS * HTTP/1.1\r\nHost:\ www". See:[HAProxy:httpchk](https://cbonte.github.io/haproxy-dconv/configuration-1.5.html#4-option%20httpchk)|
+|HTTP_CHECK|enable HTTP protocol to check on the servers health, possible value: "OPTIONS / HTTP/1.1\r\nHost:\ www". See:[HAProxy:httpchk](https://cbonte.github.io/haproxy-dconv/configuration-1.5.html#4-option%20httpchk)|
 |OPTION|comma-separated list of HAProxy `option` entries. `option` specified here will be added to related backend or listen part, and overwrite the OPTION settings in the HAProxy container|
 |SSL_CERT|ssl cert, a pem file with private key followed by public certificate, '\n'(two chars) as the line separator|
 |TCP_PORTS|comma separated ports(e.g. 9000, 9001, 2222/ssl). The port listed in `TCP_PORTS` will be load-balanced in TCP mode. Port ends with `/ssl` indicates that port needs SSL termination.
