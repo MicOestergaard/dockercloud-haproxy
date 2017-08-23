@@ -1,6 +1,6 @@
 import re
 
-from haproxy.config import HTTP_BASIC_AUTH
+from haproxy.config import HTTP_BASIC_AUTH, HEALTH_CHECK
 from haproxy.utils import get_service_attribute
 
 
@@ -35,8 +35,13 @@ def get_backend_routes(is_sticky, routes, routes_added, service_alias):
                     if is_sticky:
                         backend_route.append("cookie %s" % route["container_name"])
 
-                    if "route_settings" in route and route["route_settings"]:
-                        backend_route.append(route["route_settings"])
+                    if "health_check" in route and route["health_check"]:
+                        backend_route.append(route["health_check"])
+                    else:
+                        backend_route.append(HEALTH_CHECK)
+
+                    if "extra_route_settings" in route and route["extra_route_settings"]:
+                        backend_route.append(route["extra_route_settings"])
 
                     backend_routes.append(" ".join(backend_route))
 

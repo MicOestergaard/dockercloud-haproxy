@@ -322,8 +322,8 @@ class HaproxyConfigBackendTestCase(unittest.TestCase):
                                             'virtual_host': "a.com"}}
         mock_services.return_value = ["HW"]
         mock_routes.return_value = {
-            'HW': [{'container_name': 'HW_1', 'proto': 'http', 'port': '80', 'addr': '10.7.0.2', 'route_settings': 'check extra settings'},
-                   {'container_name': 'HW_2', 'proto': 'http', 'port': '80', 'addr': '10.7.0.3', 'route_settings': 'check extra settings'}]}
+            'HW': [{'container_name': 'HW_1', 'proto': 'http', 'port': '80', 'addr': '10.7.0.2', 'health_check': 'check', 'extra_route_settings': 'extra settings'},
+                   {'container_name': 'HW_2', 'proto': 'http', 'port': '80', 'addr': '10.7.0.3', 'health_check': 'check', 'extra_route_settings': 'extra settings'}]}
         mock_vhosts.return_value = [
             {'service_alias': 'HW', 'path': '', 'host': 'a.com', 'scheme': 'http', 'port': '80'}]
         self.assertEqual(OrderedDict([('backend SERVICE_HW', ['balance source',
@@ -336,7 +336,7 @@ class HaproxyConfigBackendTestCase(unittest.TestCase):
         mock_details.return_value = {'HW': {'balance': "source"}}
         mock_services.return_value = ["HW"]
         mock_routes.return_value = {
-            'HW': [{'container_name': 'HW_1', 'proto': 'http', 'port': '80', 'addr': '10.7.0.2', 'route_settings': 'check'},
+            'HW': [{'container_name': 'HW_1', 'proto': 'http', 'port': '80', 'addr': '10.7.0.2', 'health_check': 'check'},
                    {'container_name': 'HW_2', 'proto': 'http', 'port': '80', 'addr': '10.7.0.3'}]}
         mock_vhosts.return_value = []
         self.assertEqual({}, haproxy._config_backend_sections())
@@ -347,8 +347,8 @@ class HaproxyConfigBackendTestCase(unittest.TestCase):
         mock_details.return_value = {'HW': {'balance': "source"}}
         mock_services.return_value = ["HW"]
         mock_routes.return_value = {
-            'HW': [{'container_name': 'HW_1', 'proto': 'http', 'port': '80', 'addr': '10.7.0.2', 'route_settings': 'check'},
-                   {'container_name': 'HW_2', 'proto': 'http', 'port': '80', 'addr': '10.7.0.3', 'route_settings': 'check'}]}
+            'HW': [{'container_name': 'HW_1', 'proto': 'http', 'port': '80', 'addr': '10.7.0.2', 'health_check': 'check'},
+                   {'container_name': 'HW_2', 'proto': 'http', 'port': '80', 'addr': '10.7.0.3', 'health_check': 'check'}]}
         mock_vhosts.return_value = []
         self.assertEqual(OrderedDict([('backend default_service', ['balance source',
                                                                    'server HW_1 10.7.0.2:80 check',
