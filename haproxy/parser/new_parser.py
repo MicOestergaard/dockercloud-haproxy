@@ -1,6 +1,7 @@
 import haproxy.config
 from haproxy.parser.base_parser import Specs, EnvParser
 
+
 class NewSpecs(Specs):
     def __init__(self, links):
         super(self.__class__, self).__init__()
@@ -38,6 +39,10 @@ class NewSpecs(Specs):
             for endpoint in link["endpoints"].itervalues():
                 route = haproxy.config.BACKEND_MATCH.match(endpoint).groupdict()
                 route.update({"container_name": container_name})
+
+                route_health_check = details.get(service_alias, {}).get("health_check")
+                if route_health_check:
+                    route.update({"health_check": route_health_check})
 
                 failover = None
                 if details.get(service_alias, {}).get("failover"):
