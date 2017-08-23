@@ -319,13 +319,11 @@ class HaproxyConfigBackendTestCase(unittest.TestCase):
         haproxy = Haproxy()
         haproxy.specs = Specs()
         mock_details.return_value = {'HW': {'balance': "source",
-                                            'virtual_host': "a.com",
-                                            'health_check': "check",
-                                            'extra_route_settings': 'extra settings'}}
+                                            'virtual_host': "a.com"}}
         mock_services.return_value = ["HW"]
         mock_routes.return_value = {
-            'HW': [{'container_name': 'HW_1', 'proto': 'http', 'port': '80', 'addr': '10.7.0.2'},
-                   {'container_name': 'HW_2', 'proto': 'http', 'port': '80', 'addr': '10.7.0.3'}]}
+            'HW': [{'container_name': 'HW_1', 'proto': 'http', 'port': '80', 'addr': '10.7.0.2', 'route_settings': 'check extra settings'},
+                   {'container_name': 'HW_2', 'proto': 'http', 'port': '80', 'addr': '10.7.0.3', 'route_settings': 'check extra settings'}]}
         mock_vhosts.return_value = [
             {'service_alias': 'HW', 'path': '', 'host': 'a.com', 'scheme': 'http', 'port': '80'}]
         self.assertEqual(OrderedDict([('backend SERVICE_HW', ['balance source',
@@ -335,11 +333,10 @@ class HaproxyConfigBackendTestCase(unittest.TestCase):
 
         haproxy = Haproxy()
         haproxy.specs = Specs()
-        mock_details.return_value = {'HW': {'balance': "source",
-                                            'health_check': "check"}}
+        mock_details.return_value = {'HW': {'balance': "source"}}
         mock_services.return_value = ["HW"]
         mock_routes.return_value = {
-            'HW': [{'container_name': 'HW_1', 'proto': 'http', 'port': '80', 'addr': '10.7.0.2'},
+            'HW': [{'container_name': 'HW_1', 'proto': 'http', 'port': '80', 'addr': '10.7.0.2', 'route_settings': 'check'},
                    {'container_name': 'HW_2', 'proto': 'http', 'port': '80', 'addr': '10.7.0.3'}]}
         mock_vhosts.return_value = []
         self.assertEqual({}, haproxy._config_backend_sections())
@@ -347,12 +344,11 @@ class HaproxyConfigBackendTestCase(unittest.TestCase):
         haproxy = Haproxy()
         haproxy.specs = Specs()
         haproxy.require_default_route = True
-        mock_details.return_value = {'HW': {'balance': "source",
-                                            'health_check': "check"}}
+        mock_details.return_value = {'HW': {'balance': "source"}}
         mock_services.return_value = ["HW"]
         mock_routes.return_value = {
-            'HW': [{'container_name': 'HW_1', 'proto': 'http', 'port': '80', 'addr': '10.7.0.2'},
-                   {'container_name': 'HW_2', 'proto': 'http', 'port': '80', 'addr': '10.7.0.3'}]}
+            'HW': [{'container_name': 'HW_1', 'proto': 'http', 'port': '80', 'addr': '10.7.0.2', 'route_settings': 'check'},
+                   {'container_name': 'HW_2', 'proto': 'http', 'port': '80', 'addr': '10.7.0.3', 'route_settings': 'check'}]}
         mock_vhosts.return_value = []
         self.assertEqual(OrderedDict([('backend default_service', ['balance source',
                                                                    'server HW_1 10.7.0.2:80 check',

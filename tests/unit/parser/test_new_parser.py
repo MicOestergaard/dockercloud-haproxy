@@ -1,6 +1,7 @@
 import unittest
 
 from haproxy.parser.new_parser import *
+from haproxy.config import HEALTH_CHECK
 
 
 class SpecsTestCase(unittest.TestCase):
@@ -46,11 +47,13 @@ class SpecsTestCase(unittest.TestCase):
         self.routes = {'tmp_hello': [{'addr': 'tmp_hello_1',
                                       'container_name': 'tmp_hello_1',
                                       'port': '80',
-                                      'proto': 'tcp'}],
+                                      'proto': 'tcp',
+                                      'route_settings': HEALTH_CHECK}],
                        'tmp_world': [{'addr': 'tmp_world_1',
                                       'container_name': 'tmp_world_1',
                                       'port': '80',
-                                      'proto': 'tcp'}]}
+                                      'proto': 'tcp',
+                                      'route_settings': HEALTH_CHECK}]}
         self.links2 = {'id1': {'service_name': 'tmp_world',
                                'container_name': 'tmp_world_1',
                                'endpoints': {
@@ -71,12 +74,12 @@ class SpecsTestCase(unittest.TestCase):
                                },
                        }
         self.routes2 = {
-            'tmp_world': [{'container_name': 'tmp_world_2', 'proto': 'tcp', 'port': '22', 'addr': 'tmp_world_2'},
-                          {'container_name': 'tmp_world_2', 'proto': 'tcp', 'port': '80', 'addr': 'tmp_world_2'},
-                          {'container_name': 'tmp_world_1', 'proto': 'tcp', 'port': '22', 'addr': 'tmp_world_1'},
-                          {'container_name': 'tmp_world_1', 'proto': 'tcp', 'port': '80', 'addr': 'tmp_world_1'}],
-            'tmp_hello': [{'container_name': 'tmp_world_1', 'proto': 'tcp', 'port': '22', 'addr': 'tmp_hello_1'},
-                          {'container_name': 'tmp_world_1', 'proto': 'tcp', 'port': '80', 'addr': 'tmp_hello_1'}]}
+            'tmp_world': [{'container_name': 'tmp_world_2', 'proto': 'tcp', 'port': '22', 'addr': 'tmp_world_2', 'route_settings': HEALTH_CHECK},
+                          {'container_name': 'tmp_world_2', 'proto': 'tcp', 'port': '80', 'addr': 'tmp_world_2', 'route_settings': HEALTH_CHECK},
+                          {'container_name': 'tmp_world_1', 'proto': 'tcp', 'port': '22', 'addr': 'tmp_world_1', 'route_settings': HEALTH_CHECK},
+                          {'container_name': 'tmp_world_1', 'proto': 'tcp', 'port': '80', 'addr': 'tmp_world_1', 'route_settings': HEALTH_CHECK}],
+            'tmp_hello': [{'container_name': 'tmp_world_1', 'proto': 'tcp', 'port': '22', 'addr': 'tmp_hello_1', 'route_settings': HEALTH_CHECK},
+                          {'container_name': 'tmp_world_1', 'proto': 'tcp', 'port': '80', 'addr': 'tmp_hello_1', 'route_settings': HEALTH_CHECK}]}
 
     def test_parse_service_aliases(self):
         self.assertEqual([], NewSpecs._parse_service_aliases({}))
@@ -115,19 +118,19 @@ class SpecsTestCase(unittest.TestCase):
         self.assertEqual(self.routes2, NewSpecs._parse_routes(details, self.links2))
 
         details = {'tmp_world': {'exclude_ports': ['80']}}
-        routes = {'tmp_world': [{'container_name': 'tmp_world_2', 'proto': 'tcp', 'port': '22', 'addr': 'tmp_world_2'},
-                                {'container_name': 'tmp_world_1', 'proto': 'tcp', 'port': '22', 'addr': 'tmp_world_1'}],
-                  'tmp_hello': [{'container_name': 'tmp_world_1', 'proto': 'tcp', 'port': '22', 'addr': 'tmp_hello_1'},
-                                {'container_name': 'tmp_world_1', 'proto': 'tcp', 'port': '80', 'addr': 'tmp_hello_1'}]}
+        routes = {'tmp_world': [{'container_name': 'tmp_world_2', 'proto': 'tcp', 'port': '22', 'addr': 'tmp_world_2', 'route_settings': HEALTH_CHECK},
+                                {'container_name': 'tmp_world_1', 'proto': 'tcp', 'port': '22', 'addr': 'tmp_world_1', 'route_settings': HEALTH_CHECK}],
+                  'tmp_hello': [{'container_name': 'tmp_world_1', 'proto': 'tcp', 'port': '22', 'addr': 'tmp_hello_1', 'route_settings': HEALTH_CHECK},
+                                {'container_name': 'tmp_world_1', 'proto': 'tcp', 'port': '80', 'addr': 'tmp_hello_1', 'route_settings': HEALTH_CHECK}]}
         self.assertEqual(routes, NewSpecs._parse_routes(details, self.links2))
 
         details = {'tmp_world': {'exclude_ports': ['80', '22']}}
         routes = {'tmp_world': [],
-                  'tmp_hello': [{'container_name': 'tmp_world_1', 'proto': 'tcp', 'port': '22', 'addr': 'tmp_hello_1'},
-                                {'container_name': 'tmp_world_1', 'proto': 'tcp', 'port': '80', 'addr': 'tmp_hello_1'}]}
+                  'tmp_hello': [{'container_name': 'tmp_world_1', 'proto': 'tcp', 'port': '22', 'addr': 'tmp_hello_1', 'route_settings': HEALTH_CHECK},
+                                {'container_name': 'tmp_world_1', 'proto': 'tcp', 'port': '80', 'addr': 'tmp_hello_1', 'route_settings': HEALTH_CHECK}]}
         self.assertEqual(routes, NewSpecs._parse_routes(details, self.links2))
 
         details = {'tmp_world': {'exclude_ports': ['80', '22']}, 'tmp_hello': {'exclude_ports': ['80']}}
         routes = {'tmp_world': [],
-                  'tmp_hello': [{'container_name': 'tmp_world_1', 'proto': 'tcp', 'port': '22', 'addr': 'tmp_hello_1'}]}
+                  'tmp_hello': [{'container_name': 'tmp_world_1', 'proto': 'tcp', 'port': '22', 'addr': 'tmp_hello_1', 'route_settings': HEALTH_CHECK}]}
         self.assertEqual(routes, NewSpecs._parse_routes(details, self.links2))

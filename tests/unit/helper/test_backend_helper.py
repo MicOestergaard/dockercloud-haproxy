@@ -5,91 +5,41 @@ from haproxy.helper.backend_helper import *
 
 class BackendHelperTestCase(unittest.TestCase):
     def test_get_backend_routes(self):
-        routes = {'HW': [{'container_name': 'HW_1', 'proto': 'tcp', 'port': '80', 'addr': '10.7.0.3'},
-                         {'container_name': 'HW_2', 'proto': 'tcp', 'port': '80', 'addr': '10.7.0.2'}],
+        routes = {'HW': [{'container_name': 'HW_1', 'proto': 'tcp', 'port': '80', 'addr': '10.7.0.3', 'route_settings': 'check'},
+                         {'container_name': 'HW_2', 'proto': 'tcp', 'port': '80', 'addr': '10.7.0.2', 'route_settings': 'check'}],
                   'WEB': [{'container_name': 'WEB_2', 'proto': 'tcp', 'port': '8080', 'addr': '10.7.0.4'},
                           {'container_name': 'WEB_1', 'proto': 'tcp', 'port': '8080', 'addr': '10.7.0.5'}]}
         self.assertEqual(["server HW_1 10.7.0.3:80 check", "server HW_2 10.7.0.2:80 check"],
-                         get_backend_routes(route_setting="check", is_sticky=False,
-                                            routes=routes, routes_added=[], service_alias="HW", details={}))
+                         get_backend_routes(is_sticky=False, routes=routes, routes_added=[], service_alias="HW"))
         self.assertEqual(["server WEB_1 10.7.0.5:8080", "server WEB_2 10.7.0.4:8080"],
-                         get_backend_routes(route_setting="", is_sticky=False,
-                                            routes=routes, routes_added=[], service_alias="WEB", details={}))
+                         get_backend_routes(is_sticky=False, routes=routes, routes_added=[], service_alias="WEB"))
         self.assertEqual(["server WEB_1 10.7.0.5:8080 cookie WEB_1", "server WEB_2 10.7.0.4:8080 cookie WEB_2"],
-                         get_backend_routes(route_setting="", is_sticky=True,
-                                            routes=routes, routes_added=[], service_alias="WEB", details={}))
+                         get_backend_routes(is_sticky=True, routes=routes, routes_added=[], service_alias="WEB"))
         self.assertEqual([],
-                         get_backend_routes(route_setting="", is_sticky=False,
-                                            routes={}, routes_added=[], service_alias="WEB", details={}))
+                         get_backend_routes(is_sticky=False, routes={}, routes_added=[], service_alias="WEB"))
         self.assertEqual(["server WEB_2 10.7.0.4:8080"],
-                         get_backend_routes(route_setting="", is_sticky=False,
-                                            routes=routes, routes_added=[
+                         get_backend_routes(is_sticky=False, routes=routes, routes_added=[
                                  {'container_name': 'WEB_1', 'proto': 'tcp', 'port': '8080', 'addr': '10.7.0.5'}],
-                                            service_alias="WEB", details={}))
+                                            service_alias="WEB"))
         self.assertEqual(["server WEB_2 10.7.0.4:8080 cookie WEB_2"],
-                         get_backend_routes(route_setting="", is_sticky=True,
-                                            routes=routes, routes_added=[
+                         get_backend_routes(is_sticky=True, routes=routes, routes_added=[
                                  {'container_name': 'WEB_1', 'proto': 'tcp', 'port': '8080', 'addr': '10.7.0.5'}],
-                                            service_alias="WEB", details={}))
+                                            service_alias="WEB"))
         self.assertEqual(["server WEB_1 10.7.0.5:8080", "server WEB_2 10.7.0.4:8080"],
-                         get_backend_routes(route_setting="", is_sticky=False,
-                                            routes=routes, routes_added=[
+                         get_backend_routes(is_sticky=False, routes=routes, routes_added=[
                                  {'container_name': 'WEB_3', 'proto': 'tcp', 'port': '8080', 'addr': '10.7.0.5'}],
-                                            service_alias="WEB", details={}))
+                                            service_alias="WEB"))
         self.assertEqual([],
-                         get_backend_routes(route_setting="", is_sticky=False,
-                                            routes=routes, routes_added=[
+                         get_backend_routes(is_sticky=False, routes=routes, routes_added=[
                                  {'container_name': 'WEB_2', 'proto': 'tcp', 'port': '8080', 'addr': '10.7.0.4'},
                                  {'container_name': 'WEB_1', 'proto': 'tcp', 'port': '8080', 'addr': '10.7.0.5'}],
-                                            service_alias="WEB", details={}))
+                                            service_alias="WEB"))
         self.assertEqual(["server HW_1 10.7.0.3:80 check", "server HW_2 10.7.0.2:80 check"],
-                         get_backend_routes(route_setting="check", is_sticky=False,
-                                            routes=routes, routes_added=[
+                         get_backend_routes(is_sticky=False, routes=routes, routes_added=[
                                  {'container_name': 'WEB_3', 'proto': 'tcp', 'port': '8080', 'addr': '10.7.0.5'}],
-                                            service_alias="HW", details={}))
+                                            service_alias="HW"))
         self.assertEqual([],
-                         get_backend_routes(route_setting="", is_sticky=False,
-                                            routes=routes, routes_added=[], service_alias="HELLO", details={}))
-
-    def test_get_backend_routes_with_failover(self):
-        routes = {'HW': [{'container_name': 'HW_1', 'proto': 'tcp', 'port': '80', 'addr': '10.7.0.3'},
-                         {'container_name': 'HW_2', 'proto': 'tcp', 'port': '80', 'addr': '10.7.0.2'}],
-                  'WEB': [{'container_name': 'WEB_2', 'proto': 'tcp', 'port': '8080', 'addr': '10.7.0.4'},
-                          {'container_name': 'WEB_1', 'proto': 'tcp', 'port': '8080', 'addr': '10.7.0.5'}]}
-        details = {'HW': {'failover': "true"},
-                   'WEB': {'failover': ""}}
-
-        self.assertEqual(["server HW_1 10.7.0.3:80 check backup", "server HW_2 10.7.0.2:80 check backup"],
-                         get_backend_routes(route_setting="check", is_sticky=False,
-                                            routes=routes, routes_added=[
-                                 {'container_name': 'WEB_3', 'proto': 'tcp', 'port': '8080', 'addr': '10.7.0.5'}],
-                                            service_alias="HW", details=details))
-        self.assertEqual(["server WEB_1 10.7.0.5:8080", "server WEB_2 10.7.0.4:8080"],
-                         get_backend_routes(route_setting="", is_sticky=False,
-                                            routes=routes, routes_added=[], service_alias="WEB", details=details))
-
-    def test_get_route_health(self):
-        details = {'web-a': {'health_check': 'health_check_web_a'},
-                   'web-b': {'health_check': ''},
-                   'web-c': {}}
-        default_health_check = 'default_health_check'
-
-        self.assertEqual("health_check_web_a", get_route_health_check(details, 'web-a', default_health_check))
-        self.assertEqual(default_health_check, get_route_health_check(details, 'web-b', default_health_check))
-        self.assertEqual(default_health_check, get_route_health_check(details, 'web-c', default_health_check))
-        self.assertEqual(default_health_check, get_route_health_check(details, 'web-d', default_health_check))
-
-    def test_get_extra_route_settings(self):
-        details = {'web-a': {'extra_route_settings': 'extra_route_settings_web_a'},
-                   'web-b': {'extra_route_settings': ''},
-                   'web-c': {}}
-        default_route_settings = 'default_routsettings'
-
-        self.assertEqual("extra_route_settings_web_a",
-                         get_extra_route_settings(details, 'web-a', default_route_settings))
-        self.assertEqual(default_route_settings, get_extra_route_settings(details, 'web-b', default_route_settings))
-        self.assertEqual(default_route_settings, get_extra_route_settings(details, 'web-c', default_route_settings))
-        self.assertEqual(default_route_settings, get_extra_route_settings(details, 'web-d', default_route_settings))
+                         get_backend_routes(is_sticky=False, routes=routes, routes_added=[], service_alias="HELLO"))
 
     def test_get_websocket_setting(self):
         vhosts = [{'service_alias': 'web-a', 'path': '', 'host': 'a.com', 'scheme': 'http', 'port': '8080'},

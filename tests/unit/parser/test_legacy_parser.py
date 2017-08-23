@@ -1,6 +1,7 @@
 import unittest
 
 from haproxy.parser.legacy_parser import *
+from haproxy.config import HEALTH_CHECK
 
 
 class SpecsTestCase(unittest.TestCase):
@@ -24,8 +25,8 @@ class SpecsTestCase(unittest.TestCase):
                                   'tcp_ports': [], 'balance': None, 'extra_settings': None,
                                   'option': [], "extra_route_settings": None, "failover": None,
                                   'exclude_basic_auth': None}}
-        self.routes = {'WORLD': [{'container_name': 'WORLD_1', 'proto': 'tcp', 'port': '80', 'addr': '10.7.0.3'}],
-                       'HELLO': [{'container_name': 'HELLO_1', 'proto': 'tcp', 'port': '80', 'addr': '10.7.0.1'}]}
+        self.routes = {'WORLD': [{'container_name': 'WORLD_1', 'proto': 'tcp', 'port': '80', 'addr': '10.7.0.3', 'route_settings': HEALTH_CHECK}],
+                       'HELLO': [{'container_name': 'HELLO_1', 'proto': 'tcp', 'port': '80', 'addr': '10.7.0.1', 'route_settings': HEALTH_CHECK}]}
         self.vhosts = [{'path': '', 'host': 'a.com', 'scheme': 'http', 'port': '80', 'service_alias': 'WORLD'},
                        {'path': '', 'host': 'b.com', 'scheme': 'http', 'port': '80', 'service_alias': 'HELLO'}]
 
@@ -119,9 +120,9 @@ class SpecsTestCase(unittest.TestCase):
                                   'option': [], "extra_route_settings": None, 'exclude_basic_auth': None}
                    }
 
-        routes = {'WORLD': [{'container_name': 'WORLD_1', 'proto': 'tcp', 'port': '80', 'addr': '10.7.0.3'}],
-                  'HELLO': [{'container_name': 'HELLO_1', 'proto': 'tcp', 'port': '80', 'addr': '10.7.0.1', }],
-                  'DUPLICATED': [{'container_name': 'DUPLICATED', 'proto': 'tcp', 'port': '80', 'addr': '10.7.0.1'}]}
+        routes = {'WORLD': [{'container_name': 'WORLD_1', 'proto': 'tcp', 'port': '80', 'addr': '10.7.0.3', 'route_settings': HEALTH_CHECK}],
+                  'HELLO': [{'container_name': 'HELLO_1', 'proto': 'tcp', 'port': '80', 'addr': '10.7.0.1', 'route_settings': HEALTH_CHECK}],
+                  'DUPLICATED': [{'container_name': 'DUPLICATED', 'proto': 'tcp', 'port': '80', 'addr': '10.7.0.1', 'route_settings': HEALTH_CHECK}]}
         self.assertEqual(routes, specs._parse_routes(details, envvars))
 
 
